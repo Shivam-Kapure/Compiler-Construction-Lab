@@ -1,0 +1,17 @@
+#include<stdio.h>
+
+// This is a single-line comment
+
+int main()
+{
+    int a = 10;    // Variable declaration
+
+    /*
+       This is a
+       multi-line comment
+    */
+
+    printf("%d", a);
+
+    return 0;
+}

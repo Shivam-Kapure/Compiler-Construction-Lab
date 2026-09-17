@@ -1,0 +1,5 @@
+total = 25
+rate = 3.5
+result = total + rate * 2
+adjusted = result - 4 / 2
+is_equal = adjusted == 30.5
