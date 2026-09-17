@@ -4,46 +4,44 @@
 
 int yylex(void);
 int yyerror(const char *s);
+
+int result;
+int eof_error = 0;
 %}
 
-%token NUMBER ID
+%token NUMBER
+%token INVALID
 
 %left '+' '-'
 %left '*' '/'
-%right UMINUS
 
 %%
 
 input:
-    expression '\n'
-    {
-        printf("Valid arithmetic expression\n");
-        YYACCEPT;
-    }
+      expression '\n'    { result = $1; }
+    | expression          { result = $1; }
     ;
 
 expression:
-      expression '+' expression
-    | expression '-' expression
-    | expression '*' expression
-    | expression '/' expression
-    | '(' expression ')'
-    | '-' expression %prec UMINUS
-    | NUMBER
-    | ID
+      expression '+' expression    { $$ = $1 + $3; }
+    | expression '-' expression    { $$ = $1 - $3; }
+    | expression '*' expression    { $$ = $1 * $3; }
+    | expression '/' expression    { $$ = $1 / $3; }
+    | NUMBER                       { $$ = $1; }
     ;
 
 %%
 
 int yyerror(const char *s)
 {
-    printf("Invalid arithmetic expression\n");
+    printf("Syntax error\n");
     return 0;
 }
 
-int main(void)
+int main()
 {
-    printf("Enter an arithmetic expression: ");
-    yyparse();
+    if (yyparse() == 0)
+        printf("%d\n", result);
+
     return 0;
 }

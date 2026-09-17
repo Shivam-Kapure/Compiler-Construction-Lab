@@ -1,27 +1,55 @@
+%option noyywrap
+
 %{
 #include "parser.tab.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+int position = 0;
 %}
 
 %%
 
-[0-9]+(\.[0-9]+)?       { return NUMBER; }
-[a-zA-Z_][a-zA-Z0-9_]*  { return ID; }
+[0-9]+      {
+                yylval = atoi(yytext);
+                position += yyleng;
+                return NUMBER;
+            }
 
-"+"                     { return '+'; }
-"-"                     { return '-'; }
-"*"                     { return '*'; }
-"/"                     { return '/'; }
-"("                     { return '('; }
-")"                     { return ')'; }
+[ \t]+      {
+                position += yyleng;
+            }
 
-[ \t]+                  ;
-\n                      { return '\n'; }
+\n          {
+                position = 0;
+                return '\n';
+            }
 
-.                       { return yytext[0]; }
+"+"         {
+                position++;
+                return '+';
+            }
+
+"-"         {
+                position++;
+                return '-';
+            }
+
+"*"         {
+                position++;
+                return '*';
+            }
+
+"/"         {
+                position++;
+                return '/';
+            }
+
+.           {
+                printf("Illegal character '%s' at line 1, position %d\n",
+                       yytext, position);
+                position++;
+                return INVALID;
+            }
 
 %%
-
-int yywrap(void)
-{
-    return 1;
-}

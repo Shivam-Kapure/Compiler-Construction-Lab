@@ -72,10 +72,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int yylex();
-void yyerror(const char *s);
+int yylex(void);
+int yyerror(const char *s);
 
-#line 79 "postfix.tab.c"
+double stack[100];
+int top = -1;
+
+#line 82 "postfix.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -107,14 +110,15 @@ enum yysymbol_kind_t
   YYSYMBOL_YYerror = 1,                    /* error  */
   YYSYMBOL_YYUNDEF = 2,                    /* "invalid token"  */
   YYSYMBOL_NUMBER = 3,                     /* NUMBER  */
-  YYSYMBOL_4_ = 4,                         /* '+'  */
-  YYSYMBOL_5_ = 5,                         /* '-'  */
-  YYSYMBOL_6_ = 6,                         /* '*'  */
-  YYSYMBOL_7_ = 7,                         /* '/'  */
-  YYSYMBOL_8_ = 8,                         /* '%'  */
-  YYSYMBOL_YYACCEPT = 9,                   /* $accept  */
-  YYSYMBOL_input = 10,                     /* input  */
-  YYSYMBOL_expression = 11                 /* expression  */
+  YYSYMBOL_INVALID = 4,                    /* INVALID  */
+  YYSYMBOL_5_ = 5,                         /* '+'  */
+  YYSYMBOL_6_ = 6,                         /* '-'  */
+  YYSYMBOL_7_ = 7,                         /* '*'  */
+  YYSYMBOL_8_ = 8,                         /* '/'  */
+  YYSYMBOL_9_n_ = 9,                       /* '\n'  */
+  YYSYMBOL_YYACCEPT = 10,                  /* $accept  */
+  YYSYMBOL_input = 11,                     /* input  */
+  YYSYMBOL_expression = 12                 /* expression  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -440,21 +444,21 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  4
+#define YYFINAL  5
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   8
+#define YYLAST   13
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  9
+#define YYNTOKENS  10
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  3
 /* YYNRULES -- Number of rules.  */
 #define YYNRULES  8
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  11
+#define YYNSTATES  12
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   258
+#define YYMAXUTOK   259
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -469,13 +473,10 @@ union yyalloc
 static const yytype_int8 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       9,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     8,     2,     2,
-       2,     2,     6,     4,     2,     5,     2,     7,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     7,     5,     2,     6,     2,     8,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -493,14 +494,17 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     3
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     1,     2,     3,     4
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    14,    14,    21,    25,    29,    33,    37,    47
+       0,    25,    25,    41,    46,    60,    74,    88,   108
 };
 #endif
 
@@ -516,8 +520,8 @@ static const char *yysymbol_name (yysymbol_kind_t yysymbol) YY_ATTRIBUTE_UNUSED;
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "\"end of file\"", "error", "\"invalid token\"", "NUMBER", "'+'", "'-'",
-  "'*'", "'/'", "'%'", "$accept", "input", "expression", YY_NULLPTR
+  "\"end of file\"", "error", "\"invalid token\"", "NUMBER", "INVALID",
+  "'+'", "'-'", "'*'", "'/'", "'\\n'", "$accept", "input", "expression", YY_NULLPTR
 };
 
 static const char *
@@ -541,8 +545,8 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-       3,    -4,     7,     3,    -4,    -3,    -4,    -4,    -4,    -4,
-      -4
+      -1,    -4,    -4,     5,    -3,    -4,    -4,     4,    -4,    -4,
+      -4,    -4
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -550,20 +554,20 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     3,     0,     2,     1,     0,     4,     5,     6,     7,
-       8
+       0,     3,     8,     0,     0,     1,     2,     0,     4,     5,
+       6,     7
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -4,    -4,     8
+      -4,    -4,    13
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     2,     5
+       0,     3,     7
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -571,32 +575,34 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       1,     6,     7,     8,     9,    10,     1,     4,     3
+       1,     2,     1,     2,     0,     5,     6,     1,     2,     8,
+       9,    10,    11,     4
 };
 
 static const yytype_int8 yycheck[] =
 {
-       3,     4,     5,     6,     7,     8,     3,     0,     0
+       3,     4,     3,     4,    -1,     0,     9,     3,     4,     5,
+       6,     7,     8,     0
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     3,    10,    11,     0,    11,     4,     5,     6,     7,
-       8
+       0,     3,     4,    11,    12,     0,     9,    12,     5,     6,
+       7,     8
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,     9,    10,    11,    11,    11,    11,    11,    11
+       0,    10,    11,    12,    12,    12,    12,    12,    12
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     1,     1,     3,     3,     3,     3,     3
+       0,     2,     2,     1,     3,     3,     3,     3,     1
 };
 
 
@@ -1059,76 +1065,116 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 2: /* input: expression  */
-#line 15 "postfix.y"
-      {
-          printf("Result = %d\n", yyvsp[0]);
-      }
-#line 1068 "postfix.tab.c"
+  case 2: /* input: expression '\n'  */
+#line 26 "postfix.y"
+    {
+        if (top == 0)
+        {
+            printf("Result: %g\n", stack[top]);
+        }
+        else
+        {
+            printf("Invalid postfix expression\n");
+        }
+
+        top = -1;
+    }
+#line 1083 "postfix.tab.c"
     break;
 
   case 3: /* expression: NUMBER  */
-#line 22 "postfix.y"
+#line 42 "postfix.y"
       {
-          yyval = yyvsp[0];
+          stack[++top] = (yyvsp[0].num);
       }
-#line 1076 "postfix.tab.c"
+#line 1091 "postfix.tab.c"
     break;
 
   case 4: /* expression: expression expression '+'  */
-#line 26 "postfix.y"
+#line 47 "postfix.y"
       {
-          yyval = yyvsp[-2] + yyvsp[-1];
+          if (top < 1)
+          {
+              yyerror("insufficient operands");
+              YYABORT;
+          }
+
+          double b = stack[top--];
+          double a = stack[top--];
+
+          stack[++top] = a + b;
       }
-#line 1084 "postfix.tab.c"
+#line 1108 "postfix.tab.c"
     break;
 
   case 5: /* expression: expression expression '-'  */
-#line 30 "postfix.y"
+#line 61 "postfix.y"
       {
-          yyval = yyvsp[-2] - yyvsp[-1];
+          if (top < 1)
+          {
+              yyerror("insufficient operands");
+              YYABORT;
+          }
+
+          double b = stack[top--];
+          double a = stack[top--];
+
+          stack[++top] = a - b;
       }
-#line 1092 "postfix.tab.c"
+#line 1125 "postfix.tab.c"
     break;
 
   case 6: /* expression: expression expression '*'  */
-#line 34 "postfix.y"
+#line 75 "postfix.y"
       {
-          yyval = yyvsp[-2] * yyvsp[-1];
+          if (top < 1)
+          {
+              yyerror("insufficient operands");
+              YYABORT;
+          }
+
+          double b = stack[top--];
+          double a = stack[top--];
+
+          stack[++top] = a * b;
       }
-#line 1100 "postfix.tab.c"
+#line 1142 "postfix.tab.c"
     break;
 
   case 7: /* expression: expression expression '/'  */
-#line 38 "postfix.y"
+#line 89 "postfix.y"
       {
-          if (yyvsp[-1] == 0)
+          if (top < 1)
           {
-              yyerror("Division by zero");
+              yyerror("insufficient operands");
               YYABORT;
           }
 
-          yyval = yyvsp[-2] / yyvsp[-1];
-      }
-#line 1114 "postfix.tab.c"
-    break;
+          double b = stack[top--];
+          double a = stack[top--];
 
-  case 8: /* expression: expression expression '%'  */
-#line 48 "postfix.y"
-      {
-          if (yyvsp[-1] == 0)
+          if (b == 0)
           {
-              yyerror("Modulo by zero");
+              yyerror("division by zero");
               YYABORT;
           }
 
-          yyval = yyvsp[-2] % yyvsp[-1];
+          stack[++top] = a / b;
       }
-#line 1128 "postfix.tab.c"
+#line 1165 "postfix.tab.c"
+    break;
+
+  case 8: /* expression: INVALID  */
+#line 109 "postfix.y"
+      {
+          yyerror("invalid character");
+          YYABORT;
+      }
+#line 1174 "postfix.tab.c"
     break;
 
 
-#line 1132 "postfix.tab.c"
+#line 1178 "postfix.tab.c"
 
       default: break;
     }
@@ -1321,17 +1367,19 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 59 "postfix.y"
+#line 115 "postfix.y"
 
 
-void yyerror(const char *s)
+int yyerror(const char *s)
 {
     printf("Error: %s\n", s);
+    return 0;
 }
 
 int main()
 {
     printf("Enter postfix expression: ");
+
     yyparse();
 
     return 0;
